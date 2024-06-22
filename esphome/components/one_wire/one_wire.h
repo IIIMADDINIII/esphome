@@ -17,6 +17,10 @@ class OneWireDevice {
   /// @param address of the device
   void set_address(uint64_t address) { this->address_ = address; }
 
+  /// @brief store the index of the device
+  /// @param index of the device
+  void set_index(int index) { this->index_ = index; }
+
   /// @brief store the pointer to the OneWireBus to use
   /// @param bus pointer to the OneWireBus object
   void set_one_wire_bus(OneWireBus *bus) { this->bus_ = bus; }
@@ -28,6 +32,7 @@ class OneWireDevice {
 
  protected:
   uint64_t address_{0};
+  int index_{-1};
   OneWireBus *bus_{nullptr};  ///< pointer to OneWireBus instance
   std::string address_name_;
 

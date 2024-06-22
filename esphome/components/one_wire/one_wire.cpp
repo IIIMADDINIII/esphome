@@ -28,11 +28,15 @@ bool OneWireDevice::check_address_() {
     ESP_LOGE(TAG, "No devices, can't auto-select address");
     return false;
   }
-  if (devices.size() > 1) {
+  if (devices.size() > 1 && this->index_ < 0) {
     ESP_LOGE(TAG, "More than one device, can't auto-select address");
     return false;
   }
-  this->address_ = devices[0];
+  if (this->index_ > devices.size()) {
+    return false;
+  }
+  this->address_ = devices[this->index_ >= 0 ? this->index_ : 0];
+  ESP_LOGD(TAG, "Auto-selected address %llX for index %d", this->address_, this->index_);
   return true;
 }
 
