@@ -914,7 +914,7 @@ void Si4713Component::publish_select(select::Select *s, size_t index) {
   }
 }
 
-void Si4713Component::measure_freq(float value) {
+void Si4713Component::measure(float value) {
   uint16_t f = (uint16_t) clamp((int) std::lround(value * 20) * 5, FREQ_RAW_MIN, FREQ_RAW_MAX);
   if (!this->send_cmd_(CmdTxTuneMeasure(f))) {
     return;

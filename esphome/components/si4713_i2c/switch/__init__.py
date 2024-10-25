@@ -147,6 +147,7 @@ OUTPUT_SCHEMA = cv.Schema(
         ),
     }
 )
+
 CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(CONF_SI4713_ID): cv.use_id(Si4713Component),

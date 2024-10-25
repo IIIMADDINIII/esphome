@@ -173,17 +173,17 @@ class Si4713Component : public PollingComponent, public i2c::I2CDevice {
   bool get_output_gpio(uint8_t pin);
 
   // used by automation
-  void measure_freq(float value);
+  void measure(float value);
 };
 
-template<typename... Ts> class SetFrequencyAction : public Action<Ts...>, public Parented<Si4713Component> {
+template<typename... Ts> class SetTunerFrequencyAction : public Action<Ts...>, public Parented<Si4713Component> {
   TEMPLATABLE_VALUE(float, frequency)
   void play(Ts... x) override { this->parent_->set_tuner_frequency(this->frequency_.value(x...)); }
 };
 
-template<typename... Ts> class MeasureFrequencyAction : public Action<Ts...>, public Parented<Si4713Component> {
+template<typename... Ts> class MeasureAction : public Action<Ts...>, public Parented<Si4713Component> {
   TEMPLATABLE_VALUE(float, frequency)
-  void play(Ts... x) override { this->parent_->measure_freq(this->frequency_.value(x...)); }
+  void play(Ts... x) override { this->parent_->measure(this->frequency_.value(x...)); }
 };
 
 }  // namespace si4713_i2c
