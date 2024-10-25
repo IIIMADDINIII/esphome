@@ -21,9 +21,10 @@ class RDA5820Component : public PollingComponent, public i2c::I2CDevice {
   bool reset_;
   union {
     struct RDA5820State state_;
-    uint8_t regs_[sizeof(struct RDA5820State)];
+    uint16_t regs_[sizeof(struct RDA5820State) / sizeof(uint16_t)];
   };
 
+  bool check_addr_(uint8_t addr);
   void write_reg_(uint8_t addr);
   bool read_reg_(uint8_t addr);
   void rds_update_();

@@ -15,47 +15,79 @@ static const char *const TAG = "rda5820";
 RDA5820Component::RDA5820Component() {
   this->reset_ = false;
   memset(&this->state_, 0, sizeof(this->state_));
-  // this->state_. = ;
-  //  our defaults
-  // this->state_. = ;
+  // datasheet defaults
+  this->state_.SOFTMUTE_EN = 1;
+  this->state_.RDS_FIFO_CLR = 1;
+  this->state_.VOLUME = 15;
+  this->state_.LNA_PORT_SEL = (uint16_t) LnaInputPort::LNA_PORT_SEL_LNAP;
+  this->state_.SEEKTH = 8;
+  this->state_.INT_MODE = (uint16_t) InterruptMode::INT_MODE_UNTIL_STATUS_READ;
+  this->state_.SW_LR = 1;  // datasheet says 0b10, but it's only a single bit
+  this->state_.SOFTBLEND_EN = 1;
+  this->state_.MODE_50M_65M = 1;
+  this->state_.TH_SOFTBLEND = 19;
+  this->state_.ST = 1;
+  this->state_.RDSA = 0x5820;
+  this->state_.RDSB = 0x5820;
+  this->state_.RDSC = 0x5805;
+  this->state_.RDSD = 0x5805;
+  this->state_.PA_IBIT = 7;
+  this->state_.RDS_DEV = 0x10;
+  this->state_.PILOT_DEV = 0x0E;
+  this->state_.AUDIO_DEV = 0xF0;
+  // our defaults
+  this->state_.SPACE = (uint16_t) ChannelSpacing::SPACE_25K;
+  this->state_.BAND = (uint16_t) BandSelect::BAND_76_108;
+  this->state_.CHAN = (uint16_t) lround((87.5 - 76) / 0.025);  // 87.5 MHz => 460
+}
+
+bool RDA5820Component::check_addr_(uint8_t addr) {
+  if (addr == 0x01) {
+    return false;
+  } else if (addr >= 0x08 && addr <= 0x09) {
+    return false;
+  } else if (addr >= 0x10 && addr <= 0x3F) {
+    return false;
+  } else if (addr >= 0x42 && addr <= 0x66) {
+    return false;
+  } else if (addr >= 0x69) {
+    return false;
+  }
+  return true;
 }
 
 void RDA5820Component::write_reg_(uint8_t addr) {
-  switch (addr) {
-    case REG_:
-      break;
-    default:
-      ESP_LOGE(TAG, "write_reg_(0x%02X) invalid register address", addr);
-      return;
+  if (!this->check_addr_(addr)) {
+    ESP_LOGE(TAG, "%s(0x%02X) invalid register address", __func__, addr);
+    return;
   }
 
   if (this->reset_) {
-    uint8_t value = this->regs_[addr + i] & mask;
-    ESP_LOGV(TAG, "write_reg_(0x%02X) = 0x%02X", addr + i, value);
-    this->write_byte(addr + i, value);
+    uint16_t value = this->regs_[addr];
+    if (!this->write_byte(addr, value)) {
+      ESP_LOGE(TAG, "%s(0x%02X) cannot write register", __func__, addr, value);
+      return;
+    }
+    ESP_LOGV(TAG, "%s(0x%02X) = 0x%04X", __func__, addr, value);
   } else {
     if (this->get_component_state() & COMPONENT_STATE_LOOP) {
-      ESP_LOGE(TAG, "write_reg_(0x%02X) device was not reset", addr);
+      ESP_LOGE(TAG, "%s(0x%02X) device was not reset", __func__, addr);
     }
   }
 }
 
 bool RDA5820Component::read_reg_(uint8_t addr) {
-  switch (addr) {
-    case REG_:
-      break;
-    default:
-      ESP_LOGE(TAG, "read_reg_(0x%02X) trying to read invalid register", addr);
-      return false;
+  if (!this->check_addr_(addr)) {
+    ESP_LOGE(TAG, "%s(0x%02X) invalid register address", __func__, addr);
+    return false;
   }
 
-  if (auto b = this->read_byte(addr)) {
-    this->regs_[addr] = *b;
-    return true;
+  if (!this->read_bytes_16(addr, &this->regs_[addr])) {
+    ESP_LOGE(TAG, "%s(0x%02X) cannot read register", __func__, addr);
+    return false;
   }
 
-  ESP_LOGE(TAG, "read_reg_(0x%02X) cannot read register", addr);
-  return false;
+  return true;
 }
 
 void RDA5820Component::rds_update_() {}
@@ -70,7 +102,7 @@ void RDA5820Component::setup() {
   // reset
   // this->write_reg_(REG_);
   // frequency
-  // this->write_reg_(REG_CH1_ADDR);
+  // this->write_reg_(REG_);
 
   this->publish_frequency();
   this->publish_chip_id_text_sensor();
