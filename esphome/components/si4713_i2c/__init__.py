@@ -553,7 +553,7 @@ async def set_tuner_frequency_action_to_code(config, action_id, template_arg, ar
     cg.add(var.set_frequency(template_))
     return var
 
-    
+
 MeasureAction = si4713_ns.class_(
     "MeasureAction", automation.Action, cg.Parented.template(Si4713Component)
 )
