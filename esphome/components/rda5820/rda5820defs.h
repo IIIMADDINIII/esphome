@@ -3,8 +3,36 @@
 namespace esphome {
 namespace rda5820 {
 
-static const float FREQ_MIN = 50;
-static const float FREQ_MAX = 108;
+static const float FREQUENCY_MIN = 50;
+static const float FREQUENCY_MAX = 108;
+static const float VOLUME_MIN = 0;
+static const float VOLUME_MAX = 1;
+static const uint8_t TH_SOFTBLEND_MIN = 0;
+static const uint8_t TH_SOFTBLEND_MAX = 31;
+static const uint8_t AUDIO_DEV_MIN = 0;
+static const uint8_t AUDIO_DEV_MAX = 255;
+static const uint8_t PILOT_DEV_MIN = 0;
+static const uint8_t PILOT_DEV_MAX = 255;
+static const uint8_t RDS_DEVIATION_MIN = 0;
+static const uint8_t RDS_DEVIATION_MAX = 255;
+static const uint8_t PGA_GAIN_MIN = 0;
+static const uint8_t PGA_GAIN_MAX = 7;
+static const uint8_t ADC_GAIN_MIN = 0;
+static const uint8_t ADC_GAIN_MAX = 7;
+static const uint8_t PA_GAIN_MIN = 0;
+static const uint8_t PA_GAIN_MAX = 63;
+static const uint8_t PA_IBIT_MIN = 0;
+static const uint8_t PA_IBIT_MAX = 7;
+static const uint8_t PA_VCOM_MIN = 0;
+static const uint8_t PA_VCOM_MAX = 7;
+static const uint8_t SEEK_TH_MIN = 0;
+static const uint8_t SEEK_TH_MAX = 15;
+static const uint8_t SEEK_TH_OLD_MIN = 0;
+static const uint8_t SEEK_TH_OLD_MAX = 63;
+static const size_t RDS_STATION_MIN = 0;
+static const size_t RDS_STATION_MAX = 8;
+static const size_t RDS_TEXT_MIN = 0;
+static const size_t RDS_TEXT_MAX = 64;
 
 enum class ClkMode : uint16_t {
   CLK_MODE_32K768,
@@ -207,7 +235,7 @@ struct RDA5820State {
       uint16_t VOLUME : 4;  // Volume scale is logarithmic
       uint16_t : 2;
       uint16_t LNA_PORT_SEL : 2;  // LnaInputPort
-      uint16_t SEEKTH : 4;        // Seek SNR threshold value, 79 - SEEKTH (dB)
+      uint16_t SEEK_TH : 4;       // Seek SNR threshold value, 79 - SEEK_TH (dB)
       uint16_t : 1;
       uint16_t SEEK_MODE : 2;  // SeekMode
       uint16_t INT_MODE : 1;   // InterruptMode
@@ -232,7 +260,7 @@ struct RDA5820State {
   union {
     uint16_t REG_07;
     struct {
-      uint16_t FREQ_MODE : 1;  // Freq setting changed, 76000(or 87000) kHz + freq_direct (08H) kHz (?)
+      uint16_t FREQ_MODE : 1;  // Freq setting changed, 76000(or 87000) kHz + freq_direct (08H) kHz (what?)
       uint16_t SOFTBLEND_EN : 1;
       uint16_t SEEK_TH_OLD : 6;   // Seek threshold for old seek mode, valid when SeekMode::SEEK_MODE_AND
       uint16_t MODE_50M_65M : 1;  // When BAND == BAND_65_76_OR_50_65
@@ -249,7 +277,7 @@ struct RDA5820State {
       uint16_t ST : 1;         // Stereo indicator, available on GPIO3 by setting GPIO3=01
       uint16_t BLK_E : 1;      // Block E has been found
       uint16_t RDSS : 1;       // RDS decoder synchronized (in RDS Verbose mode)
-      uint16_t SF : 1;         // Seek fail, RSSI level lower than SEEKTH
+      uint16_t SF : 1;         // Seek fail, RSSI level lower than SEEK_TH
       uint16_t STC : 1;        // Seek/Tune complete
       uint16_t RDSR : 1;       // New RDS/RBDS group ready
     };
