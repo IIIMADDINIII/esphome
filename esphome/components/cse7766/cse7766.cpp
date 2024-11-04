@@ -71,12 +71,12 @@ bool CSE7766Component::check_byte_() {
 void CSE7766Component::parse_data_() {
 #if ESPHOME_LOG_LEVEL >= ESPHOME_LOG_LEVEL_VERY_VERBOSE
   {
-  	std::string s = "Raw data:";
-  	char buff[4] = {0};
-  	for (uint8_t i = 0; i <= 23; i++) {
-  		snprintf(buff, sizeof(buff), " %02X", this->raw_data_[i]);
-  		s += buff;
-  	}
+    std::string s = "Raw data:";
+    char buff[4] = {0};
+    for (uint8_t i = 0; i <= 23; i++) {
+      snprintf(buff, sizeof(buff), " %02X", this->raw_data_[i]);
+      s += buff;
+    }
     ESP_LOGVV(TAG, "%s", s.c_str());
   }
 #endif
