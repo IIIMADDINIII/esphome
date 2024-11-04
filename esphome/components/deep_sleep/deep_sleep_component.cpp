@@ -52,7 +52,7 @@ void DeepSleepComponent::set_sleep_duration(uint32_t time_ms) { this->sleep_dura
 void DeepSleepComponent::set_run_duration(uint32_t time_ms) { this->run_duration_ = time_ms; }
 
 void DeepSleepComponent::begin_sleep(bool manual) {
-  if (this->prevent_ && !manual || this->guard_) {
+  if ((this->prevent_ && !manual) || this->guard_) {
     this->next_enter_deep_sleep_ = true;
     return;
   }
