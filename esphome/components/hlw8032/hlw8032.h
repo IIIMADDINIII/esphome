@@ -26,7 +26,7 @@ class HLW8032Component : public Component, public uart::UARTDevice {
   void loop() override;
   float get_setup_priority() const override;
   void dump_config() override;
-  //void update() override;
+  // void update() override;
 
   void set_voltage_coef(float value) { this->voltage_coef_ = value; }
   void set_current_coef(float value) { this->current_coef_ = value; }

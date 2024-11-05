@@ -25,8 +25,6 @@ void HLW8032Component::loop() {
     if (this->buff_.size() < 24)
       continue;
 
-    ESP_LOGD(TAG, "%s", format_hex_pretty(&this->buff_[0], this->buff_.size()).c_str());
-
     uint8_t state = this->buff_[0];
     uint8_t magic = this->buff_[1];
 
@@ -35,6 +33,8 @@ void HLW8032Component::loop() {
     if (state == 0xaa || !(state == 0x55 || (state & 0xf0) == 0xf0) || magic != 0x5A) {
       continue;
     }
+
+    ESP_LOGV(TAG, "%s", format_hex_pretty(std::vector<uint8_t>(this->buff_.begin(), this->buff_.end())).c_str());
 
     uint8_t chksum = 0;
     for (int i = 1; i < 22; i++) {
@@ -56,13 +56,13 @@ void HLW8032Component::loop() {
     this->regs_.upd = this->buff_[18];
     this->regs_.pf = ((uint16_t) this->buff_[19] << 8) | this->buff_[20];
 
-    ESP_LOGVV(TAG, "error %d", this->regs_.error);
-    ESP_LOGVV(TAG, "overflow p %d c %d v %d", this->regs_.p_overflow, this->regs_.c_overflow, this->regs_.v_overflow);
-    ESP_LOGVV(TAG, "valid p %d c %d v %d", this->regs_.p_valid, this->regs_.c_valid, this->regs_.v_valid);
-    ESP_LOGVV(TAG, "voltage %06X/%06X", this->regs_.vp, this->regs_.v);
-    ESP_LOGVV(TAG, "current %06X/%06X", this->regs_.cp, this->regs_.c);
-    ESP_LOGVV(TAG, "power %06X/%06X", this->regs_.pp, this->regs_.p);
-    ESP_LOGVV(TAG, "pulse count %05X ", ((uint32_t) this->regs_.pf_carry << 16) | this->regs_.pf);
+    ESP_LOGV(TAG, "error %d", this->regs_.error);
+    ESP_LOGV(TAG, "overflow p %d c %d v %d", this->regs_.p_overflow, this->regs_.c_overflow, this->regs_.v_overflow);
+    ESP_LOGV(TAG, "valid p %d c %d v %d", this->regs_.p_valid, this->regs_.c_valid, this->regs_.v_valid);
+    ESP_LOGV(TAG, "voltage %06X/%06X", this->regs_.vp, this->regs_.v);
+    ESP_LOGV(TAG, "current %06X/%06X", this->regs_.cp, this->regs_.c);
+    ESP_LOGV(TAG, "power %06X/%06X", this->regs_.pp, this->regs_.p);
+    ESP_LOGV(TAG, "pulse count %05X ", ((uint32_t) this->regs_.pf_carry << 16) | this->regs_.pf);
 
     this->publish_();
 
