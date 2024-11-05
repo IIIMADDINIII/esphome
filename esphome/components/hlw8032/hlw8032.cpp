@@ -25,6 +25,8 @@ void HLW8032Component::loop() {
     if (this->buff_.size() < 24)
       continue;
 
+    ESP_LOGVV(TAG, "%s", format_hex_pretty(std::vector<uint8_t>(this->buff_.begin(), this->buff_.end())).c_str());
+
     uint8_t state = this->buff_[0];
     uint8_t magic = this->buff_[1];
 
@@ -54,8 +56,7 @@ void HLW8032Component::loop() {
     this->regs_.upd = this->buff_[18];
     this->regs_.pf = ((uint16_t) this->buff_[19] << 8) | this->buff_[20];
 
-    ESP_LOGV(TAG, "%s", format_hex_pretty(std::vector<uint8_t>(this->buff_.begin(), this->buff_.end())).c_str());
-    ESP_LOGV(TAG, "%02X %d %05X V %d %d %06X %06X C %d %d %06X %06X P %d %d %06X %06X", this->regs_.state,
+    ESP_LOGV(TAG, "%02X %d %05X v %d %d %06X %06X c %d %d %06X %06X p %d %d %06X %06X", this->regs_.state,
              this->regs_.error, ((uint32_t) this->regs_.pf_carry << 16) | this->regs_.pf, this->regs_.v_valid,
              this->regs_.v_overflow, this->regs_.vp, this->regs_.v, this->regs_.c_valid, this->regs_.c_overflow,
              this->regs_.cp, this->regs_.c, this->regs_.p_valid, this->regs_.p_overflow, this->regs_.pp, this->regs_.p);
