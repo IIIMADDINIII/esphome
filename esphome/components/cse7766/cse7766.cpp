@@ -1,7 +1,5 @@
 #include "cse7766.h"
 #include "esphome/core/log.h"
-#include <cinttypes>
-#include <sstream>
 
 namespace esphome {
 namespace cse7766 {
@@ -71,13 +69,8 @@ bool CSE7766Component::check_byte_() {
 void CSE7766Component::parse_data_() {
 #if ESPHOME_LOG_LEVEL >= ESPHOME_LOG_LEVEL_VERY_VERBOSE
   {
-    std::string s = "Raw data:";
-    char buff[4] = {0};
-    for (uint8_t i = 0; i <= 23; i++) {
-      snprintf(buff, sizeof(buff), " %02X", this->raw_data_[i]);
-      s += buff;
-    }
-    ESP_LOGVV(TAG, "%s", s.c_str());
+    std::string s = format_hex_pretty(this->raw_data_, sizeof(this->raw_data_));
+    ESP_LOGVV(TAG, "Raw data: %s", s.c_str());
   }
 #endif
 
@@ -211,21 +204,25 @@ void CSE7766Component::parse_data_() {
 
 #if ESPHOME_LOG_LEVEL >= ESPHOME_LOG_LEVEL_VERY_VERBOSE
   {
-    std::stringstream ss;
-    ss << "Parsed:";
+    std::string s = "Parsed:";
+    char buff[64] = {0};
     if (have_voltage) {
-      ss << " V=" << voltage << "V";
+      snprintf(buff, sizeof(buff), " V=%.2fV", voltage);
+      s += buff;
     }
     if (have_current) {
-      ss << " I=" << current * 1000.0f << "mA (~" << calculated_current * 1000.0f << "mA)";
+      snprintf(buff, sizeof(buff), " I=%.2fmA (~%fmA)", current * 1000.0f, calculated_current * 1000.0f);
+      s += buff;
     }
     if (have_power) {
-      ss << " P=" << power << "W";
+      snprintf(buff, sizeof(buff), " P=%.2fW", power);
+      s += buff;
     }
     if (energy != 0.0f) {
-      ss << " E=" << energy << "kWh (" << cf_pulses << ")";
+      snprintf(buff, sizeof(buff), " E=%dkWh", cf_pulses);
+      s += buff;
     }
-    ESP_LOGVV(TAG, "%s", ss.str().c_str());
+    ESP_LOGVV(TAG, "%s", s.c_str());
   }
 #endif
 }
