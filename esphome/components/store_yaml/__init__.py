@@ -39,9 +39,7 @@ LOG_ACTION_SCHEMA = automation.maybe_simple_id(
 )
 
 
-@automation.register_action(
-    "store_yaml.log", LogAction, LOG_ACTION_SCHEMA
-)
+@automation.register_action("store_yaml.log", LogAction, LOG_ACTION_SCHEMA)
 async def log_action_to_code(config, action_id, template_arg, args):
     var = cg.new_Pvariable(action_id, template_arg)
     await cg.register_parented(var, config[CONF_ID])
