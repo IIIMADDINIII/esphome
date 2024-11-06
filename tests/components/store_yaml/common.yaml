@@ -1,9 +1,9 @@
 api:
   services:
-    - service: 'store_yaml_dump'
+    - service: 'store_yaml_log'
       then:
-        - store_yaml.dump
-        
-store_yaml:
-  show_secrets: True
+        - store_yaml.log
 
+store_yaml:
+  show_in_logconfig: True
+  show_secrets: True

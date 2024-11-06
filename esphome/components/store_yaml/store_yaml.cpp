@@ -6,11 +6,16 @@ namespace store_yaml {
 
 static const char *const TAG = "store_yaml";
 
-void StoreYamlComponent::set(const std::string &yaml) { this->yaml_ = yaml; }
+void StoreYamlComponent::dump_config() {
+  if (this->show_) {
+    ESP_LOGCONFIG(TAG, "YAML:");
+    this->log(true);
+  }
+}
 
-std::string StoreYamlComponent::get() const { return this->yaml_; }
+std::string StoreYamlComponent::get_yaml() const { return this->yaml_; }
 
-void StoreYamlComponent::dump() const {
+void StoreYamlComponent::log(bool dump_config) const {
   const char *s = this->yaml_.c_str();
   while (*s) {
     const char *e = s;
@@ -20,7 +25,12 @@ void StoreYamlComponent::dump() const {
     if (e > s) {
       if (e[-1] == '\n')
         e--;
-      ESP_LOGI(TAG, "%s", std::string(s, e - s).c_str());
+      std::string row = std::string(s, e - s);
+      if (dump_config) {
+        ESP_LOGCONFIG(TAG, "%s", row.c_str());
+      } else {
+        ESP_LOGI(TAG, "%s", row.c_str());
+      }
     }
     s = tmp;
   }
