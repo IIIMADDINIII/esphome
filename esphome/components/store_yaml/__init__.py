@@ -8,7 +8,7 @@ from esphome.const import (
 )
 
 CODEOWNERS = ["@gabest11"]
-CONF_SHOW_IN_LOGCONFIG = "show_in_logconfig"
+CONF_SHOW_IN_DUMP_CONFIG = "show_in_dump_config"
 CONF_SHOW_SECRETS = "show_secrets"
 
 store_yaml_ns = cg.esphome_ns.namespace("store_yaml")
@@ -17,7 +17,7 @@ StoreYamlComponent = store_yaml_ns.class_("StoreYamlComponent", cg.Component)
 CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(): cv.declare_id(StoreYamlComponent),
-        cv.Optional(CONF_SHOW_IN_LOGCONFIG, default=True): cv.boolean,
+        cv.Optional(CONF_SHOW_IN_DUMP_CONFIG, default=True): cv.boolean,
         cv.Optional(CONF_SHOW_SECRETS, default=False): cv.boolean,
     }
 )
@@ -26,7 +26,7 @@ CONFIG_SCHEMA = cv.Schema(
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     store_yaml = await cg.register_component(var, config)
-    cg.add(store_yaml.set_show_in_logconfig(config[CONF_SHOW_IN_LOGCONFIG]))
+    cg.add(store_yaml.set_show_in_dump_config(config[CONF_SHOW_IN_DUMP_CONFIG]))
     yaml = yaml_util.load_yaml(CORE.config_path)
     dump = yaml_util.dump(yaml, show_secrets=config[CONF_SHOW_SECRETS])
     cg.add(store_yaml.set_yaml(dump))

@@ -5,5 +5,5 @@ api:
         - store_yaml.log
 
 store_yaml:
-  show_in_logconfig: True
+  show_in_dump_config: True
   show_secrets: True

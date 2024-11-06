@@ -7,7 +7,7 @@ namespace store_yaml {
 static const char *const TAG = "store_yaml";
 
 void StoreYamlComponent::dump_config() {
-  if (this->show_) {
+  if (this->show_in_dump_config_) {
     ESP_LOGCONFIG(TAG, "YAML:");
     this->log(true);
   }
