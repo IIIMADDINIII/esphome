@@ -1,0 +1,9 @@
+api:
+  services:
+    - service: 'store_yaml_dump'
+      then:
+        - store_yaml.dump
+        
+store_yaml:
+  show_secrets: True
+
