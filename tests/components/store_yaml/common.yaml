@@ -1,3 +1,7 @@
+wifi:
+  ssid: ssid
+  password: password
+
 api:
   services:
     - service: 'store_yaml_log'
