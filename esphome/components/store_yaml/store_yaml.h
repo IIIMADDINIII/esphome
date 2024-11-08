@@ -3,17 +3,19 @@
 #include "esphome/core/component.h"
 #include "esphome/core/automation.h"
 
+extern const char ESPHOME_YAML[];
+
 namespace esphome {
 namespace store_yaml {
 class StoreYamlComponent : public Component {
   bool show_in_dump_config_{false};
-  std::string yaml_;
+  const char *yaml_;
 
  public:
   void dump_config() override;
   void set_show_in_dump_config(bool show) { this->show_in_dump_config_ = show; }
-  void set_yaml(const std::string &yaml) { this->yaml_ = yaml; }
-  std::string get_yaml() const;
+  void set_yaml(const char *yaml) { this->yaml_ = yaml; }
+  const char *get_yaml() const;
   void log(bool dump_config = false) const;
 };
 

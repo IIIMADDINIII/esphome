@@ -13,10 +13,10 @@ void StoreYamlComponent::dump_config() {
   }
 }
 
-std::string StoreYamlComponent::get_yaml() const { return this->yaml_; }
+const char *StoreYamlComponent::get_yaml() const { return this->yaml_; }
 
 void StoreYamlComponent::log(bool dump_config) const {
-  const char *s = this->yaml_.c_str();
+  const char *s = this->yaml_;
   while (*s) {
     const char *e = s;
     while (*e && *e++ != '\n')
