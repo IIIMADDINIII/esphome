@@ -50,6 +50,7 @@ class BitWriter:
     def flush(self):
         if self.size > 0:
             b = (self.buff << (8 - self.size)) & 255
+            self.put_bits(b, 8)
 
 
 def compress(s):
