@@ -15,18 +15,30 @@ void StoreYamlComponent::dump_config() {
   }
 }
 
+struct Entry {
+  uint32_t p : 24;
+  uint32_t c : 8;
+};
+
 class Decompressor {
-  std::map<uint16_t, std::string> codes_;  // TODO: replace string with char + index to next char
-  size_t pos_{0};
-  uint8_t size_{0};
-  uint32_t buff_{0};
+  std::map<uint16_t, Entry> codes_;
+  size_t pos_;
+  uint8_t size_;
+  uint32_t buff_;
   size_t code_index_;
   uint8_t code_width_;
+  Entry prev_;
 
  public:
-  Decompressor() {
-    for (int i = 0; i < 256; i++) {
-      this->codes_[i] = std::string(1, (char) i);
+  Decompressor() { this->reset(); }
+
+  void reset() {
+    this->pos_ = 0;
+    this->size_ = 0;
+    this->buff_ = 0;
+    this->codes_.clear();
+    for (uint32_t i = 0; i < 256; i++) {
+      this->codes_[i] = Entry{.p = 0, .c = i};
     }
     this->code_index_ = this->codes_.size();
     this->code_width_ = 9;  // log2next + 1
@@ -47,40 +59,60 @@ class Decompressor {
     return value;
   }
 
-  std::string get_code() {
+  const Entry *get_entry(uint16_t &code) {
     if (this->code_index_ == ((1 << this->code_width_) - 1)) {
       this->code_width_++;
     }
-    uint32_t c = get_bits(this->code_width_);
-    auto i = this->codes_.find(c);
+    code = (uint16_t) get_bits(this->code_width_);
+    auto i = this->codes_.find(code);
     if (i != this->codes_.end()) {
-      return i->second;
+      return &i->second;
     }
-    if (c != this->codes_.size()) {
+    if (code != this->codes_.size()) {
       this->pos_ = ESPHOME_YAML_SIZE;  // error in input, set eof
     }
-    return std::string();
+    return nullptr;
   }
 
-  void add_code(const std::string &c) { this->codes_[this->code_index_++] = c; }
-
   bool is_eof() const { return this->pos_ >= ESPHOME_YAML_SIZE; }
+
+  std::string get_string(const Entry *entry) const {
+    std::string s(1, (char) entry->c);
+    while (entry->p != 0) {
+      entry = &this->codes_.find(entry->p)->second;
+      s = std::string(1, (char) entry->c) + s;
+    }
+    return s;
+  }
+
+  std::string get_first() {
+    this->reset();
+    uint16_t code = 0;
+    const Entry *entry = this->get_entry(code);
+    std::string s = this->get_string(entry);
+    this->prev_.c = (uint32_t) s[0];
+    this->prev_.p = code;
+    return s;
+  }
+
+  std::string get_next() {
+    uint16_t code = 0;
+    const Entry *entry = this->get_entry(code);
+    if (entry == nullptr)
+      entry = &this->prev_;
+    std::string s = this->get_string(entry);
+    this->prev_.c = s[0];
+    this->codes_[this->code_index_++] = this->prev_;
+    this->prev_.p = code;
+    return s;
+  }
 };
 
 void StoreYamlComponent::log(bool dump_config) const {
   Decompressor *dec = new Decompressor();
-
-  std::string c = dec->get_code();
-  std::string prev = c;
-  std::string yaml = c;
-
+  std::string yaml = dec->get_first();
   while (!dec->is_eof()) {
-    std::string c = dec->get_code();
-    if (c.empty())
-      c = prev + prev[0];
-    dec->add_code(prev + c[0]);
-    prev = c;
-    yaml += c;
+    yaml += dec->get_next();
     // print line by line because the logger cannot handle too much data
     // it also uses less memory
     size_t newline = 0;
