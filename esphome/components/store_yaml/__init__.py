@@ -19,7 +19,7 @@ StoreYamlComponent = store_yaml_ns.class_("StoreYamlComponent", cg.Component)
 CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(): cv.declare_id(StoreYamlComponent),
-        cv.Optional(CONF_SHOW_IN_DUMP_CONFIG, default=True): cv.boolean,
+        cv.Optional(CONF_SHOW_IN_DUMP_CONFIG, default=False): cv.boolean,
         cv.Optional(CONF_SHOW_SECRETS, default=False): cv.boolean,
     }
 )
