@@ -109,7 +109,7 @@ bool RowDecompressor::get_row(std::string &row) {
   if (this->is_eof() && this->yaml_.size() > 0) {
     // no new line at the end of the file
     row = this->yaml_;
-    this->yaml_.empty();
+    this->yaml_.clear();
     return true;
   }
 
