@@ -1,5 +1,6 @@
 #include "decompressor.h"
 #include "esphome/core/log.h"
+#include "esphome/core/hal.h"
 
 namespace esphome {
 namespace store_yaml {
@@ -31,7 +32,7 @@ uint32_t Decompressor::get_bits_(size_t bits) {
   }
 
   while (this->size_ < bits) {
-    this->buff_ = (this->buff_ << 8) | pgm_read_byte(&this->data_ptr_[this->pos_++]);
+    this->buff_ = (this->buff_ << 8) | progmem_read_byte(&this->data_ptr_[this->pos_++]);
     this->size_ += 8;
   }
 
