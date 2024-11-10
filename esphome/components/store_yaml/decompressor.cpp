@@ -31,7 +31,7 @@ uint32_t Decompressor::get_bits_(size_t bits) {
   }
 
   while (this->size_ < bits) {
-    this->buff_ = (this->buff_ << 8) | this->data_ptr_[this->pos_++];
+    this->buff_ = (this->buff_ << 8) | pgm_read_byte(&this->data_ptr_[this->pos_++]);
     this->size_ += 8;
   }
 
@@ -106,7 +106,7 @@ bool RowDecompressor::get_row(std::string &row) {
     return true;
   }
 
-  if (this->is_eof() && this->yaml_.size() > 0) {
+  if (this->is_eof() && !this->yaml_.empty()) {
     // no new line at the end of the file
     row = this->yaml_;
     this->yaml_.clear();
