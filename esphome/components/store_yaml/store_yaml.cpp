@@ -10,6 +10,11 @@ static const char *const TAG = "store_yaml";
 void StoreYamlComponent::dump_config() {
   if (this->show_in_dump_config_) {
     ESP_LOGCONFIG(TAG, "YAML:");
+    ESP_LOGCONFIG(TAG, "  Compressed size: %zu", ESPHOME_YAML_SIZE);
+#ifndef USE_RP2040
+    const char *url = (this->web_server_ != nullptr) ? this->web_server_url_.c_str() : "not configured!";
+    ESP_LOGCONFIG(TAG, "  Web server url: %s", url);
+#endif
     RowDecompressor dec(ESPHOME_YAML, ESPHOME_YAML_SIZE);
     std::string row;
     while (dec.get_row(row)) {
@@ -19,10 +24,13 @@ void StoreYamlComponent::dump_config() {
 }
 
 void StoreYamlComponent::setup() {
+#ifndef USE_RP2040
   if (this->web_server_ != nullptr) {
     this->web_server_->init();
     this->web_server_->add_handler(this);
+    ESP_LOGD(TAG, "Web server configured to serve at: %s", this->web_server_url_.c_str());
   }
+#endif
 }
 
 void StoreYamlComponent::loop() {
@@ -37,9 +45,11 @@ void StoreYamlComponent::loop() {
 }
 
 void StoreYamlComponent::log() {
-  ESP_LOGI(TAG, "YAML:");
+  ESP_LOGI(TAG, "Decompressed YAML:");
   this->dec_ = make_unique<RowDecompressor>(ESPHOME_YAML, ESPHOME_YAML_SIZE);
 }
+
+#ifndef USE_RP2040
 
 void StoreYamlComponent::set_web_server(web_server_base::WebServerBase *web_server, const std::string &url) {
   this->web_server_ = web_server;
@@ -52,10 +62,10 @@ bool StoreYamlComponent::canHandle(AsyncWebServerRequest *request) {
 
 void StoreYamlComponent::handleRequest(AsyncWebServerRequest *request) {
 #ifdef USE_ARDUINO
-  auto cb = [this](uint8_t *buffer, size_t maxLen, size_t index) -> size_t {
+  auto cb = [this](uint8_t *buffer, size_t max_len, size_t index) -> size_t {
     uint8_t *ptr = buffer;
     // 5KB+ config file with a single character repeating will result in a 100 byte long word, not likely
-    while (maxLen > 100 && !(this->web_dec_ && this->web_dec_->is_eof())) {
+    while (max_len > 100 && !(this->web_dec_ && this->web_dec_->is_eof())) {
       std::string s;
       if (!this->web_dec_) {
         this->web_dec_ = make_unique<Decompressor>(ESPHOME_YAML, ESPHOME_YAML_SIZE);
@@ -63,10 +73,10 @@ void StoreYamlComponent::handleRequest(AsyncWebServerRequest *request) {
       } else {
         s = this->web_dec_->get_next();
       }
-      size_t len = std::min(maxLen, s.size());
+      size_t len = std::min(max_len, s.size());
       memcpy(ptr, s.c_str(), len);
       ptr += len;
-      maxLen -= len;
+      max_len -= len;
     }
     return ptr - buffer;
   };
@@ -83,6 +93,8 @@ void StoreYamlComponent::handleRequest(AsyncWebServerRequest *request) {
 
   request->send(response);
 }
+
+#endif
 
 }  // namespace store_yaml
 }  // namespace esphome

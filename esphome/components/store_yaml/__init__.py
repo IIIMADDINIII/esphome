@@ -10,12 +10,25 @@ from esphome.components.web_server_base import CONF_WEB_SERVER_BASE_ID
 from esphome.const import (
     CONF_ID,
     CONF_URL,
+    PLATFORM_ESP32,
+    PLATFORM_ESP8266,
+    PLATFORM_BK72XX,
+    PLATFORM_RTL87XX,
 )
 
+platforms = [
+    PLATFORM_ESP32,
+    PLATFORM_ESP8266,
+    PLATFORM_BK72XX,
+    PLATFORM_RTL87XX,
+]
+
 CODEOWNERS = ["@gabest11"]
-AUTO_LOAD = ["web_server_base"]
+if CORE.target_platform in platforms:
+    AUTO_LOAD = ["web_server_base"]
 CONF_SHOW_IN_DUMP_CONFIG = "show_in_dump_config"
 CONF_SHOW_SECRETS = "show_secrets"
+CONF_HTTP = "http"
 
 store_yaml_ns = cg.esphome_ns.namespace("store_yaml")
 StoreYamlComponent = store_yaml_ns.class_("StoreYamlComponent", cg.Component)
@@ -25,9 +38,14 @@ CONFIG_SCHEMA = cv.Schema(
         cv.GenerateID(): cv.declare_id(StoreYamlComponent),
         cv.Optional(CONF_SHOW_IN_DUMP_CONFIG, default=False): cv.boolean,
         cv.Optional(CONF_SHOW_SECRETS, default=False): cv.boolean,
-        cv.Optional(CONF_URL): cv.string_strict,
-        cv.GenerateID(CONF_WEB_SERVER_BASE_ID): cv.use_id(
-            web_server_base.WebServerBase
+        cv.Optional(CONF_HTTP): cv.Schema(
+            {
+                cv.Optional(CONF_URL): cv.string_strict,
+                cv.GenerateID(CONF_WEB_SERVER_BASE_ID): cv.All(
+                    cv.use_id(web_server_base.WebServerBase),
+                    cv.only_on(platforms),
+                ),
+            }
         ),
     }
 )
@@ -96,9 +114,11 @@ async def to_code(config):
     size_t = f"const size_t ESPHOME_YAML_SIZE = {size}"
     cg.add_global(cg.RawExpression(uint8_t))
     cg.add_global(cg.RawExpression(size_t))
-    if CONF_URL in config:
-        webserver = await cg.get_variable(config[CONF_WEB_SERVER_BASE_ID])
-        cg.add(var.set_web_server(webserver, config[CONF_URL]))
+    if CONF_HTTP in config:
+        http = config[CONF_HTTP]
+        if CONF_URL in http:
+            webserver = await cg.get_variable(http[CONF_WEB_SERVER_BASE_ID])
+            cg.add(var.set_web_server(webserver, http[CONF_URL]))
 
 
 LogAction = store_yaml_ns.class_("LogAction", automation.Action)
