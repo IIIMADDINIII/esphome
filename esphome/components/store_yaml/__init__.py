@@ -24,8 +24,14 @@ platforms = [
 ]
 
 CODEOWNERS = ["@gabest11"]
-if CORE.target_platform in platforms:
-    AUTO_LOAD = ["web_server_base"]
+
+
+def AUTO_LOAD():
+    if CORE.target_platform in platforms:
+        return ["web_server_base"]
+    return []
+
+
 CONF_SHOW_IN_DUMP_CONFIG = "show_in_dump_config"
 CONF_SHOW_SECRETS = "show_secrets"
 CONF_HTTP = "http"

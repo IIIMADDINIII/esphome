@@ -8,13 +8,13 @@ namespace store_yaml {
 static const char *const TAG = "store_yaml";
 
 void StoreYamlComponent::dump_config() {
-  if (this->show_in_dump_config_) {
-    ESP_LOGCONFIG(TAG, "YAML:");
-    ESP_LOGCONFIG(TAG, "  Compressed size: %zu", ESPHOME_YAML_SIZE);
+  ESP_LOGCONFIG(TAG, "YAML:");
+  ESP_LOGCONFIG(TAG, "  Compressed size: %zu", ESPHOME_YAML_SIZE);
 #ifndef USE_RP2040
-    const char *url = (this->web_server_ != nullptr) ? this->web_server_url_.c_str() : "not configured!";
-    ESP_LOGCONFIG(TAG, "  Web server url: %s", url);
+  const char *url = (this->web_server_ != nullptr) ? this->web_server_url_.c_str() : "not configured!";
+  ESP_LOGCONFIG(TAG, "  Web server url: %s", url);
 #endif
+  if (this->show_in_dump_config_) {
     RowDecompressor dec(ESPHOME_YAML, ESPHOME_YAML_SIZE);
     std::string row;
     while (dec.get_row(row)) {
