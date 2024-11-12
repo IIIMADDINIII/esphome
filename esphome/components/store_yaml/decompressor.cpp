@@ -19,7 +19,7 @@ void Decompressor::reset() {
   this->buff_ = 0;
   this->codes_.clear();
   for (uint32_t i = 0; i < 256; i++) {
-    this->codes_.push_back(Entry{.p = 0, .c = i});
+    this->codes_.push_back(Entry{.p = 0, .c = (uint8_t) i});
   }
   this->code_width_ = 9;  // log2next + 1
 }
@@ -88,6 +88,10 @@ std::string Decompressor::get_next() {
   this->prev_.c = s[0];
   this->codes_.push_back(this->prev_);
   this->prev_.p = code;
+  if (this->is_eof()) {
+    // free code table, no longer needed
+    this->codes_.clear();
+  }
   return s;
 }
 

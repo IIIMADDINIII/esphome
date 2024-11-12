@@ -7,9 +7,11 @@ namespace esphome {
 namespace store_yaml {
 
 struct Entry {
-  uint32_t p : 24;
-  uint32_t c : 8;
-};
+  // uint32_t p : 24;
+  // uint32_t c : 8;
+  uint16_t p;  // save 1 byte, this reduces the number of code words to 65536, more than enough for configs
+  uint8_t c;
+} __attribute__((packed));
 
 class Decompressor {
   const uint8_t *data_ptr_;
