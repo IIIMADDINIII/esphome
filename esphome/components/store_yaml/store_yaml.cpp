@@ -65,10 +65,12 @@ void StoreYamlComponent::handleRequest(AsyncWebServerRequest *request) {
   auto cb = [this](uint8_t *buffer, size_t max_len, size_t index) -> size_t {
     uint8_t *ptr = buffer;
     // 5KB+ config file with a single character repeating will result in a 100 byte long word, not likely
-    while (max_len > 100 && !(this->web_dec_ && this->web_dec_->is_eof())) {
-      std::string s;
+    while (max_len > 100) {
       if (!this->web_dec_) {
         this->web_dec_ = make_unique<Decompressor>(ESPHOME_YAML, ESPHOME_YAML_SIZE);
+      }
+      std::string s;
+      if (index == 0) {
         s = this->web_dec_->get_first();
       } else {
         s = this->web_dec_->get_next();
@@ -77,6 +79,10 @@ void StoreYamlComponent::handleRequest(AsyncWebServerRequest *request) {
       memcpy(ptr, s.c_str(), len);
       ptr += len;
       max_len -= len;
+      if (this->web_dec_->is_eof()) {
+        this->web_dec_ = nullptr;
+        break;
+      }
     }
     return ptr - buffer;
   };
@@ -90,7 +96,6 @@ void StoreYamlComponent::handleRequest(AsyncWebServerRequest *request) {
   }
   dec = nullptr;
 #endif
-
   request->send(response);
 }
 
