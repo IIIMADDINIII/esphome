@@ -66,11 +66,9 @@ void StoreYamlComponent::handleRequest(AsyncWebServerRequest *request) {
     uint8_t *ptr = buffer;
     // 5KB+ config file with a single character repeating will result in a 100 byte long word, not likely
     while (max_len > 100) {
+      std::string s;
       if (!this->web_dec_) {
         this->web_dec_ = make_unique<Decompressor>(ESPHOME_YAML, ESPHOME_YAML_SIZE);
-      }
-      std::string s;
-      if (index == 0) {
         s = this->web_dec_->get_first();
       } else {
         s = this->web_dec_->get_next();
@@ -86,6 +84,7 @@ void StoreYamlComponent::handleRequest(AsyncWebServerRequest *request) {
     }
     return ptr - buffer;
   };
+  this->web_dec_ = nullptr;
   AsyncWebServerResponse *response = request->beginChunkedResponse("text/plain;charset=UTF-8", cb);
 #else
   AsyncResponseStream *response = request->beginResponseStream("text/plain;charset=UTF-8");
