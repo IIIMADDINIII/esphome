@@ -34,7 +34,7 @@ struct register_set {
       uint8_t pf_carry : 1;
     };
   };
-  uint16 pf;
+  uint16_t pf;
 };
 
 }  // namespace hlw8032

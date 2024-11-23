@@ -9,7 +9,7 @@ static const char *const TAG = "hlw8032";
 HLW8032Component::HLW8032Component() {
   memset((void *) &this->regs_, 0, sizeof(this->regs_));
   this->last_pf_ = UINT32_MAX;
-  this->voltage_coef_ = 1.88f;
+  this->voltage_coef_ = 1.00f;
   this->current_coef_ = 1.00f;
 }
 
