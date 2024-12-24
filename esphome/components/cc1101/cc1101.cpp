@@ -383,8 +383,8 @@ void CC1101::set_mode_(bool s) {
     this->write_register_(CC1101_IOCFG2, 0x0D);
     this->write_register_(CC1101_IOCFG0, 0x0D);
     this->write_register_(CC1101_PKTCTRL0, 0x32);
-    this->write_register_(CC1101_MDMCFG3, 0x93);
-    this->write_register_(CC1101_MDMCFG4, 7 + this->m4rxbw_);
+    this->write_register_(CC1101_MDMCFG3, 131);
+    this->write_register_(CC1101_MDMCFG4, 10 + this->m4rxbw_);
   }
 
   this->set_modulation_(this->modulation_);
